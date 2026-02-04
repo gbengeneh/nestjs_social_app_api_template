@@ -1,0 +1,22 @@
+=======
+
+  // Added methods to fix errors and support remote storage upload
+  getUploadDir(): string {
+    // Return the remote storage bucket or base path identifier
+    return 'media'; // Assuming 'media' is the bucket name used in Supabase
+  }
+
+  async uploadFile(fileBuffer: Buffer, key: string, contentType: string): Promise<string> {
+    // Upload file buffer directly to remote storage (Supabase)
+    const { data, error } = await supabase.storage.from(this.getUploadDir()).upload(key, fileBuffer, {
+      contentType,
+      upsert: true,
+    });
+
+    if (error) {
+      throw new Error('Upload failed: ' + error.message);
+    }
+
+    return supabase.storage.from(this.getUploadDir()).getPublicUrl(data.path).data.publicUrl;
+  }
+}
